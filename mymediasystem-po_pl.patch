@@ -1,0 +1,29 @@
+--- mms-1.1.0-2230/plugins/feature/audio/po/pl.po.orig	2009-10-13 04:50:42.000000000 +0200
++++ mms-1.1.0-2230/plugins/feature/audio/po/pl.po	2009-10-18 22:39:05.000000000 +0200
+@@ -285,7 +285,7 @@
+ 
+ #: graphical_audio.cpp:1294
+ msgid "choose a cover"
+-msgstr "wybierz okładkę "
++msgstr "wybierz okładkę"
+ 
+ #: graphical_audio.cpp:1397
+ msgid "No covers found"
+@@ -341,7 +341,7 @@
+ 
+ #: graphical_audio.cpp:3082 graphical_audio.cpp:3084
+ msgid "Next track: "
+-msgstr "Następna ścieżka:"
++msgstr "Następna ścieżka: "
+ 
+ #: graphical_audio.cpp:3089
+ msgid "Next track: random"
+@@ -401,7 +401,7 @@
+ 
+ #: audio_plugin.cpp:35
+ msgid "Please specify a correct path "
+-msgstr "Określ poprawną ścieżkę"
++msgstr "Określ poprawną ścieżkę "
+ 
+ #: audio_plugin.cpp:36
+ msgid "in the configuration file"

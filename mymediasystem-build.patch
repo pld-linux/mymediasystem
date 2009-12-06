@@ -1,0 +1,76 @@
+--- mms-1.1.0-2241/common.mak.orig	2009-02-14 01:54:02.000000000 +0100
++++ mms-1.1.0-2241/common.mak	2009-12-06 13:05:43.000000000 +0100
+@@ -1,14 +1,4 @@
+-ifeq ($(shell uname -m), x86_64)
+-	EXTRA_FLAGS = -march=$(OPTIMIZE)
+-else
+-ifeq ($(shell uname -m), i686)
+-	EXTRA_FLAGS = -march=$(OPTIMIZE)
+-else
+-	EXTRA_FLAGS =
+-endif
+-endif
+-
+-EXTRA_FLAGS += -ffast-math -funroll-loops -fomit-frame-pointer
++EXTRA_FLAGS = -fomit-frame-pointer
+ 
+ ifeq ($(GCC_VER_MAJOR),4)
+ EXTRA_FLAGS += -funit-at-a-time
+@@ -31,18 +21,14 @@
+ ifeq ($(SIZE_OPTIMIZE),yes)
+ OPTIMIZATION = -Os
+ else
+-OPTIMIZATION = -O3
++OPTIMIZATION =
+ endif
+ endif
+ 
+ # Do not strip the binaries at installation
+-ifeq ($(DEBUG),yes)
+ INSTALLSTRIP =
+-else
+-INSTALLSTRIP = -s
+-endif
+ 
+-STDFLAGS = -I/usr/local/include -L/usr/local/lib -I/usr/include/ -I. \
++STDFLAGS = -L/usr/lib -L/usr/lib64 -I/usr/include/ -I. \
+ 	 -pthread -pipe $(OPTIMIZATION) $(EXTRA_FLAGS) $(OPTFLAGS)
+ 
+ COMMON_LIBS += $(COMMONCPP2_LIBS)
+@@ -54,11 +40,11 @@
+ 
+ CXX=g++
+ 
+-C=gcc
++CC=gcc
+ 
+ .SUFFIXES: .cpp .c .o
+ .cpp.o: ; $(CXX) $(CXXFLAGS) -c $<
+-.c.o: ; $(C) $(STDFLAGS) $(CFLAGS) -c $<
++.c.o: ; $(CC) $(STDFLAGS) $(CFLAGS) -c $<
+ 
+ DO_MAKE = @for i in $(SUBDIRS); do $(MAKE) -C $$i || break; done
+ DO_MAKECLEAN = @find ./ -mindepth 2  -maxdepth 2 -name 'Makefile'  -type f | sed 's/[mM]akefile$$//g' | xargs -I '{}' make -C  '{}' clean
+--- mms-1.1.0-2241/Makefile.orig	2009-09-26 04:50:14.000000000 +0200
++++ mms-1.1.0-2241/Makefile	2009-12-06 13:08:01.000000000 +0100
+@@ -152,16 +152,16 @@
+ endif
+ 
+ patch-lirc:
+-	@cd $(DESTDIR)$(CONFIGDIR)/ && patch -p1 < $(OLD_PWD)/cfg/patch-lirc
++	@cd $(DESTDIR)$(CONFIGDIR)/ && patch -p1 < $(BUILD_DIR)/cfg/patch-lirc
+ 
+ patch-evdev:
+-	@cd $(DESTDIR)$(CONFIGDIR)/ && patch -p1 < $(OLD_PWD)/cfg/patch-evdev
++	@cd $(DESTDIR)$(CONFIGDIR)/ && patch -p1 < $(BUILD_DIR)/cfg/patch-evdev
+ 
+ patch-lirc-local:
+-	@cd $(HOME)/.mms && patch -p1 < $(OLD_PWD)/cfg/patch-lirc
++	@cd $(HOME)/.mms && patch -p1 < $(BUILD_DIR)/cfg/patch-lirc
+ 
+ patch-evdev-local:
+-	@cd $(HOME)/.mms && patch -p1 < $(OLD_PWD)/cfg/patch-evdev
++	@cd $(HOME)/.mms && patch -p1 < $(BUILD_DIR)/cfg/patch-evdev
+ 
+ install: $(PRG)
+ 	$(MAKE) install -C po;

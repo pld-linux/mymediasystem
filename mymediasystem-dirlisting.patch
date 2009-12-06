@@ -1,0 +1,12 @@
+--- mms-1.1.0-2043/plugins/feature/movie/graphical_movie.cpp.orig	2008-10-27 03:25:10.000000000 +0100
++++ mms-1.1.0-2043/plugins/feature/movie/graphical_movie.cpp	2009-02-17 12:38:15.000000000 +0100
+@@ -705,7 +705,8 @@
+ 	// movie directory
+ 	m.filenames = filenames;
+       }
+-      cur_files.push_back(m);
++      if (small_name != "lost+found")
++        cur_files.push_back(m);
+     }
+   } else { // file
+     MyPair filetype = check_type(filename, movie_conf->p_filetypes_m());

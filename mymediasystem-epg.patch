@@ -1,0 +1,20 @@
+--- mms-1.1.0-2174/plugins/feature/epg/epg.cpp.orig	2009-04-03 04:50:09.000000000 +0200
++++ mms-1.1.0-2174/plugins/feature/epg/epg.cpp	2009-05-02 03:59:48.000000000 +0200
+@@ -872,7 +878,7 @@
+ bool Epg::check_tv_data() {
+     // check if the TV.xml file is new enough
+     time_t max = 0;
+-
++/*
+     if (!use_svdrp) {
+         foreach(Channel& channel, channels) {
+ 
+@@ -884,7 +890,7 @@
+             }
+         }
+     }
+-
++*/
+     foreach(Channel& channel, channels) {
+         if (channel.program.size()> 0) {
+             vector<EpgEvent *>::iterator cha = channel.program.end();

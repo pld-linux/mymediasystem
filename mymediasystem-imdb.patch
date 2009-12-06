@@ -1,0 +1,60 @@
+--- mms-1.1.0-2043/plugins/feature/movie/imdb.cpp.orig	2009-01-03 03:25:08.000000000 +0100
++++ mms-1.1.0-2043/plugins/feature/movie/imdb.cpp	2009-01-07 23:51:40.000000000 +0100
+@@ -37,7 +37,7 @@
+ 
+       /* Remove trailing ordinal numbers .*/
+       /* fprintf(stderr, "\"%s\"\n", str.c_str()); */
+-      str = regex_tools::regex_replace(str, "", "^\\&nbsp;{1,2}[0-9]\\.", false, false);
++      str = regex_tools::regex_replace(str, "", "^\\&nbsp;{1,2}\\d+\\.", false, false);
+       url.m_strTitle = string_format::ConvertHTMLToAnsi(str.c_str(),locale.c_str());
+       movielist.push_back(url);
+     }
+@@ -91,21 +91,21 @@
+     return true;
+   }
+ 
+-  /* Process Exact matches */
+-  string str = regex_tools::extract_substr(strHTML, "<p><b>Titles \\(Exact Matches\\).*?<table>(.*?)</table>" , true);
+-  GetMovieList(str, movielist, encoding);
+-  
+   /* Process Popular titles */
+-  str = regex_tools::extract_substr(strHTML, "<p><b>Popular Titles</b>(.*?)</table>" , true);
++  string str = regex_tools::extract_substr(strHTML, "<p><b>Popular Titles</b>(.*?)</table>" , true);
+   GetMovieList(str, movielist, encoding);
+ 
++  /* Process Exact matches */
++  str = regex_tools::extract_substr(strHTML, "<p><b>Titles \\(Exact Matches\\).*?<table>(.*?)</table>" , true);
++  GetMovieList(str, movielist, encoding);
++  
+   /* Process partial matches */
+   str = regex_tools::extract_substr(strHTML, "<p><b>Titles \\(Partial Matches\\).*?<table>(.*?)</table>" , true);
+   GetMovieList(str, movielist, encoding);
+ 
+   /* Process Approx matches */
+-  str = regex_tools::extract_substr(strHTML, "<p><b>Titles \\(Approx Matches\\).*?<table>(.*?)</table>" , true);
+-  GetMovieList(str, movielist, encoding);
++//  str = regex_tools::extract_substr(strHTML, "<p><b>Titles \\(Approx Matches\\).*?<table>(.*?)</table>" , true);
++//  GetMovieList(str, movielist, encoding);
+ 
+  return true;
+ }
+@@ -115,7 +115,9 @@
+ {
+   string strURL = url.m_strURL;
+   string strHTML;
+-  movieDetails.m_strTitle=string_format::trim(url.m_strTitle);
++  /* Remove year from title */
++  string str = regex_tools::regex_replace(url.m_strTitle, "", " \\([1,2]\\d{3}.*\\)", false, false);
++  movieDetails.m_strTitle=string_format::trim(str);
+   movieDetails.m_strDirector=" ";
+   movieDetails.m_strWritingCredits=" ";
+   movieDetails.genres.clear();
+@@ -140,7 +142,7 @@
+     encoding = "UTF-8";
+ 
+   /* get year */
+-  string str = regex_tools::extract_substr(strHTML, "\\(<a href=\"/Sections/Years/[0-9]+/\">([0-9]+)</a>\\)", true);
++  str = regex_tools::extract_substr(strHTML, "\\(<a href=\"/Sections/Years/[0-9]+/\">([0-9]+)</a>", true);
+ 
+   if (str.size() > 0)
+     movieDetails.m_iYear=atoi(str.c_str());

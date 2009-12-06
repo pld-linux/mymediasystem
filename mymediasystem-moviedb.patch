@@ -1,0 +1,249 @@
+--- mms-1.1.0-2043/plugins/feature/movie/imdb_movie.cpp.orig	2008-10-01 03:25:06.000000000 +0200
++++ mms-1.1.0-2043/plugins/feature/movie/imdb_movie.cpp	2009-01-07 22:43:03.000000000 +0100
+@@ -59,13 +59,13 @@
+ 				  const string& shared_table, const string& movie_id,
+ 				  bool new_movie, SQLDatabase *db, const string& idfield)
+ {
+-  SQLQuery *q = db->query(table.c_str(), ("SELECT * FROM %t WHERE name='" + string_format::escape_db_string(value) + "'").c_str());
++  SQLQuery *q = db->query(table.c_str(), ("SELECT id FROM %t WHERE name='" + string_format::escape_db_string(value) + "'").c_str());
+ 
+   if (!q || q->numberOfTuples() == 0) {
+     delete q;
+     char *tmp = sqlite3_mprintf(" VALUES(NULL, '%q', '%q')", value.c_str(), string_format::lowercase_utf(value).c_str());
+     db->execute(("INSERT INTO " + table + tmp).c_str());
+-    q = db->query(table.c_str(), ("SELECT * FROM %t WHERE name='" + string_format::escape_db_string(value) + "'").c_str());
++    q = db->query(table.c_str(), ("SELECT id FROM %t WHERE name='" + string_format::escape_db_string(value) + "'").c_str());
+     sqlite3_free(tmp);
+   }
+ 
+@@ -93,7 +93,9 @@
+ 					 const string& shared_table, const string& movie_id,
+ 					 bool new_movie, SQLDatabase *db, const string& idfield)
+ {
+-  SQLQuery *q = db->query(table.c_str(), ("SELECT * FROM %t WHERE name='" + string_format::escape_db_string(value.first) + "'").c_str());
++  SQLQuery *q = db->query(table.c_str(),
++    ("SELECT id FROM %t WHERE name='" + string_format::escape_db_string(value.first) +
++    "' and role='" + string_format::escape_db_string(value.second) + "'").c_str());
+ 
+   if (!q || q->numberOfTuples() == 0) {
+     delete q;
+@@ -101,7 +103,8 @@
+ 				string_format::lowercase_utf(value.first).c_str(),
+ 				value.second.c_str(), string_format::lowercase_utf(value.second).c_str());
+     db->execute(("INSERT INTO " + table + tmp).c_str());
+-    q = db->query(table.c_str(), ("SELECT * FROM %t WHERE name='" + string_format::escape_db_string(value.first) + "'").c_str());
++    q = db->query(table.c_str(), ("SELECT id FROM %t WHERE name='" + string_format::escape_db_string(value.first) +
++      "' and role='" + string_format::escape_db_string(value.second) + "'").c_str());
+     sqlite3_free(tmp);
+   }
+ 
+@@ -183,7 +186,7 @@
+     remove_values_from_db("GMovie", mid, &db);
+     foreach (string& genre, genres)
+       save_value_to_db("Genre", genre, "GMovie", mid, false, &db, "gid");
+-    
++
+     remove_values_from_db("AMovie", mid, &db);
+     foreach (actor_pair& actor, actors)
+       save_double_value_to_db("Actors", actor, "AMovie", mid, false, &db, "aid");
+@@ -223,7 +226,7 @@
+       sqlite3_free(tmp);
+     }
+ 
+-    SQLQuery *qtitle = db.query(table.c_str(), ("SELECT * FROM %t WHERE title='" + string_format::escape_db_string(m_strTitle) + "'").c_str());
++    SQLQuery *qtitle = db.query(table.c_str(), ("SELECT id FROM %t WHERE title='" + string_format::escape_db_string(m_strTitle) + "'").c_str());
+     SQLRow &movie = (*qtitle)[0];
+     string mid = movie["id"];
+     delete qtitle;
+@@ -285,50 +288,36 @@
+ 
+     delete q;
+ 
+-    q = db.query("DMovie", ("SELECT * FROM %t WHERE mid='" + mid + "'").c_str());
+-
+-    for (unsigned int i = 0; i < q->numberOfTuples(); ++i) {
+-      SQLRow &d = (*q)[i];
+-      SQLQuery *q2 = db.query("Directors", ("SELECT * FROM %t WHERE id='" + d["did"] + "'").c_str());
+-      SQLRow &row = (*q2)[0];
+-      m_strDirector = row["name"];
+-      delete q2;
++    q = db.query("Directors", ("SELECT name FROM %t D JOIN DMovie DM on D.id=DM.did WHERE DM.mid='" + mid + "'").c_str());
++    if (q && q->numberOfTuples() > 0) {
++      SQLRow &d = (*q)[0];
++      m_strDirector = d["name"];
+     }
+ 
+     delete q;
+ 
+-    q = db.query("WCMovie", ("SELECT * FROM %t WHERE mid='" + mid + "'").c_str());
+-
+-    for (unsigned int i = 0; i < q->numberOfTuples(); ++i) {
+-      SQLRow &d = (*q)[i];
+-      SQLQuery *q2 = db.query("WritingCredits", ("SELECT * FROM %t WHERE id='" + d["wcid"] + "'").c_str());
+-      SQLRow &row = (*q2)[0];
++    q = db.query("WritingCredits", ("SELECT name FROM %t W JOIN WCMovie WM on W.id=WM.wcid WHERE WM.mid='" + mid + "'").c_str());
++    if (q && q->numberOfTuples() > 0) {
++      SQLRow &row = (*q)[0];
+       m_strWritingCredits = row["name"];
+-      delete q2;
+     }
+ 
+     delete q;
+ 
+-    q = db.query("GMovie", ("SELECT * FROM %t WHERE mid='" + mid + "'").c_str());
++    q = db.query("Genre", ("SELECT name FROM %t G JOIN GMovie GM on G.id=GM.gid WHERE GM.mid='" + mid + "'").c_str());
+ 
+     for (unsigned int i = 0; i < q->numberOfTuples(); ++i) {
+-      SQLRow &d = (*q)[i];
+-      SQLQuery *q2 = db.query("Genre", ("SELECT * FROM %t WHERE id='" + d["gid"] + "'").c_str());
+-      SQLRow &row = (*q2)[0];
++      SQLRow &row = (*q)[i];
+       genres.push_back(row["name"]);
+-      delete q2;
+     }
+ 
+     delete q;
+ 
+-    q = db.query("AMovie", ("SELECT * FROM %t WHERE mid='" + mid + "'").c_str());
++    q = db.query("Actors", ("SELECT name,role FROM %t A JOIN AMovie AM on A.id=AM.aid WHERE AM.mid='" + mid + "'").c_str());
+ 
+     for (unsigned int i = 0; i < q->numberOfTuples(); ++i) {
+-      SQLRow &d = (*q)[i];
+-      SQLQuery *q2 = db.query("Actors", ("SELECT * FROM %t WHERE id='" + d["aid"] + "'").c_str());
+-      SQLRow &row = (*q2)[0];
++      SQLRow &row = (*q)[i];
+       actors.push_back(std::make_pair(row["name"], row["role"]));
+-      delete q2;
+     }
+ 
+     delete q;
+--- mms-1.1.0-2043/plugins/feature/movie/movie_db.cpp.orig	2009-01-02 03:25:08.000000000 +0100
++++ mms-1.1.0-2043/plugins/feature/movie/movie_db.cpp	2009-01-07 20:44:20.000000000 +0100
+@@ -229,15 +229,15 @@
+   db.execute("CREATE INDEX idx_folders_parent ON Folders (parent)");
+   db.execute("CREATE INDEX idx_folders_filename ON Folders (filename)");
+ 
+-  db.execute("CREATE INDEX idx_directors_name ON Directors (lname)");
++  db.execute("CREATE INDEX idx_directors_name ON Directors (name)");
+ 
+-  db.execute("CREATE INDEX idx_writingcredits_name ON WritingCredits (lname)");
+-  db.execute("CREATE INDEX idx_writingcredits_role ON WritingCredits (lrole)");
++  db.execute("CREATE INDEX idx_writingcredits_name ON WritingCredits (name)");
++  db.execute("CREATE INDEX idx_writingcredits ON WritingCredits (name,role)");
+ 
+-  db.execute("CREATE INDEX idx_genre_name ON Genre (lname)");
++  db.execute("CREATE INDEX idx_genre_name ON Genre (name)");
+ 
+-  db.execute("CREATE INDEX idx_actors_name ON Actors (lname)");
+-  db.execute("CREATE INDEX idx_actors_role ON Actors (lrole)");
++  db.execute("CREATE INDEX idx_actors_name ON Actors (name)");
++  db.execute("CREATE INDEX idx_actors ON Actors (name,role)");
+ 
+   db.execute("CREATE INDEX idx_movie_title ON Movie (ltitle)");
+   db.execute("CREATE INDEX idx_movie_tagline ON Movie (ltagline)");
+@@ -324,47 +324,69 @@
+   types.push_back("HDTV");
+   types.push_back("DTheater");
+   types.push_back("5.1");
++  types.push_back("DD5.1");
+   types.push_back("BDRip");
+   types.push_back("DTS");
+   types.push_back("OAR");
++  types.push_back("dxva");
+ 
+   vector<string> group_names;
+-  group_names.push_back("-ViTE");
+-  group_names.push_back("-RSSM");
+-  group_names.push_back("-LMG");
+-  group_names.push_back("-NeDiVx");
+-  group_names.push_back("-PUKKA");
+-  group_names.push_back("-HLS");
+-  group_names.push_back("-BMT");
++  group_names.push_back("-4HM");
++  group_names.push_back("-ADHD");
++  group_names.push_back("-AJP");
+   group_names.push_back("-BMB");
+-  group_names.push_back("-DiAMOND");
++  group_names.push_back("-BMT");
++  group_names.push_back("-BestHD");
++  group_names.push_back("-BiA");
++  group_names.push_back("-BoNE");
++  group_names.push_back("-CDDHD");
++  group_names.push_back("-CTU");
++  group_names.push_back("-Chakra");
++  group_names.push_back("-CiNEFiLE");
++  group_names.push_back("-CtrlHD");
++  group_names.push_back("-DEFiNiTE");
++  group_names.push_back("-DIMENSION");
++  group_names.push_back("-DMT");
+   group_names.push_back("-DONE");
++  group_names.push_back("-DOWN");
++  group_names.push_back("-DiAMOND");
++  group_names.push_back("-DivXfacTory");
++  group_names.push_back("-ESiR");
++  group_names.push_back("-EuReKA");
++  group_names.push_back("-FLAiTE");
++  group_names.push_back("-HANGOVER");
++  group_names.push_back("-HD1080");
++  group_names.push_back("-HDT");
++  group_names.push_back("-HLS");
++  group_names.push_back("-LMG");
++  group_names.push_back("-LOL");
++  group_names.push_back("-LsE");
++  group_names.push_back("-NBS");
++  group_names.push_back("-NWO");
++  group_names.push_back("-NeDiVx");
+   group_names.push_back("-OSiDVD");
+-  group_names.push_back("-iMBT");
++  group_names.push_back("-PROGRESS");
++  group_names.push_back("-PUKKA");
++  group_names.push_back("-PerfectionHD");
++  group_names.push_back("-REFiNED");
++  group_names.push_back("-REVEiLLE");
++  group_names.push_back("-RSSM");
+   group_names.push_back("-SAiNTS");
+-  group_names.push_back("-mVs");
+-  group_names.push_back("-DMT");
+-  group_names.push_back("-FLAiTE");
+-  group_names.push_back("-aXXo");
+   group_names.push_back("-SEPTiC");
+-  group_names.push_back("-hV");
++  group_names.push_back("-SiLU");
+   group_names.push_back("-SiNNERS");
+-  group_names.push_back("-NBS");
+   group_names.push_back("-THOR");
+-  group_names.push_back("-WPi");
+-  group_names.push_back("-Chakra");
+-  group_names.push_back("-LsE");
+-  group_names.push_back("-HDT");
+-  group_names.push_back("-BoNE");
+-  group_names.push_back("-DEFiNiTE");
+-  group_names.push_back("-mVmHD");
+-  group_names.push_back("-4HM");
+   group_names.push_back("-TQF");
+-  group_names.push_back("-REVEiLLE");
+-  group_names.push_back("-CDDHD");
++  group_names.push_back("-ViTE");
++  group_names.push_back("-WPi");
+   group_names.push_back("-XOR");
+-  group_names.push_back("-LOL");
+-  group_names.push_back("-DivXfacTory");
++  group_names.push_back("-aAF");
++  group_names.push_back("-aXXo");
++  group_names.push_back("-hV");
++  group_names.push_back("-iMBT");
++  group_names.push_back("-iNFAMOUS");
++  group_names.push_back("-mVmHD");
++  group_names.push_back("-mVs");
+ 
+   int pos;
+ 
+@@ -632,7 +632,7 @@
+   std::pair<int, int> element_size = string_format::calculate_string_size("abcltuwHPMjJg", normal_font);
+   int information_header_height = element_size.second;
+ 
+-  int y = 15 + information_header_height + 30;
++  int y = 15 + information_header_height + 45;
+   int x = 45;
+ 
+   PObj *p;
