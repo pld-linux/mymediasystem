@@ -1,5 +1,5 @@
---- mms-1.1.0-2043/plugins/feature/movie/imdb.cpp.orig	2009-01-03 03:25:08.000000000 +0100
-+++ mms-1.1.0-2043/plugins/feature/movie/imdb.cpp	2009-01-07 23:51:40.000000000 +0100
+--- mms-1.1.0-2252/plugins/feature/movie/imdb.cpp.orig	2009-02-14 01:54:11.000000000 +0100
++++ mms-1.1.0-2252/plugins/feature/movie/imdb.cpp	2010-02-14 11:19:00.000000000 +0100
 @@ -37,7 +37,7 @@
  
        /* Remove trailing ordinal numbers .*/
@@ -58,3 +58,12 @@
  
    if (str.size() > 0)
      movieDetails.m_iYear=atoi(str.c_str());
+@@ -179,7 +181,7 @@
+     movieDetails.genres = regex_tools::regex_matches(str, "<a href=\"/Sections/Genres/.+?/\">(.+?)</a>");
+ 
+   /* get runtime */
+-  movieDetails.m_strRuntime = string_format::trim(regex_tools::extract_substr(strHTML,"<h5>Runtime:</h5>(.+?)</div>", true));
++  movieDetails.m_strRuntime = string_format::trim(remove_html_tags(regex_tools::extract_substr(strHTML,"<h5>Runtime:</h5>(.+?)</div>", true)));
+ 
+   // some movies have alternate run times, but there's no space on screen to display more than just one */
+   movieDetails.m_strRuntime = regex_tools::regex_replace(movieDetails.m_strRuntime, "", "\\|.*", true, false);

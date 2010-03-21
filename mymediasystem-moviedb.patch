@@ -117,8 +117,8 @@
      }
  
      delete q;
---- mms-1.1.0-2043/plugins/feature/movie/movie_db.cpp.orig	2009-01-02 03:25:08.000000000 +0100
-+++ mms-1.1.0-2043/plugins/feature/movie/movie_db.cpp	2009-01-07 20:44:20.000000000 +0100
+--- mms-1.1.0-2252/plugins/feature/movie/movie_db.cpp.orig	2009-11-01 04:50:13.000000000 +0100
++++ mms-1.1.0-2252/plugins/feature/movie/movie_db.cpp	2010-02-14 10:19:18.000000000 +0100
 @@ -229,15 +229,15 @@
    db.execute("CREATE INDEX idx_folders_parent ON Folders (parent)");
    db.execute("CREATE INDEX idx_folders_filename ON Folders (filename)");
@@ -141,7 +141,7 @@
  
    db.execute("CREATE INDEX idx_movie_title ON Movie (ltitle)");
    db.execute("CREATE INDEX idx_movie_tagline ON Movie (ltagline)");
-@@ -324,47 +324,69 @@
+@@ -324,47 +324,84 @@
    types.push_back("HDTV");
    types.push_back("DTheater");
    types.push_back("5.1");
@@ -159,6 +159,7 @@
 -  group_names.push_back("-PUKKA");
 -  group_names.push_back("-HLS");
 -  group_names.push_back("-BMT");
++  group_names.push_back("-2HD");
 +  group_names.push_back("-4HM");
 +  group_names.push_back("-ADHD");
 +  group_names.push_back("-AJP");
@@ -176,30 +177,41 @@
 +  group_names.push_back("-DEFiNiTE");
 +  group_names.push_back("-DIMENSION");
 +  group_names.push_back("-DMT");
++  group_names.push_back("-DON");
    group_names.push_back("-DONE");
 +  group_names.push_back("-DOWN");
 +  group_names.push_back("-DiAMOND");
 +  group_names.push_back("-DivXfacTory");
 +  group_names.push_back("-ESiR");
 +  group_names.push_back("-EuReKA");
++  group_names.push_back("-FLAWL3SS");
 +  group_names.push_back("-FLAiTE");
++  group_names.push_back("-FQM");
++  group_names.push_back("-FoV");
++  group_names.push_back("-HALCYON");
 +  group_names.push_back("-HANGOVER");
 +  group_names.push_back("-HD1080");
 +  group_names.push_back("-HDT");
 +  group_names.push_back("-HLS");
++  group_names.push_back("-KrAcK");
 +  group_names.push_back("-LMG");
 +  group_names.push_back("-LOL");
 +  group_names.push_back("-LsE");
 +  group_names.push_back("-NBS");
++  group_names.push_back("-NEOgeo");
 +  group_names.push_back("-NWO");
 +  group_names.push_back("-NeDiVx");
++  group_names.push_back("-NoTV");
++  group_names.push_back("-ORENJi");
    group_names.push_back("-OSiDVD");
 -  group_names.push_back("-iMBT");
 +  group_names.push_back("-PROGRESS");
 +  group_names.push_back("-PUKKA");
 +  group_names.push_back("-PerfectionHD");
++  group_names.push_back("-RED");
 +  group_names.push_back("-REFiNED");
 +  group_names.push_back("-REVEiLLE");
++  group_names.push_back("-REWARD");
 +  group_names.push_back("-RSSM");
    group_names.push_back("-SAiNTS");
 -  group_names.push_back("-mVs");
@@ -208,9 +220,11 @@
 -  group_names.push_back("-aXXo");
    group_names.push_back("-SEPTiC");
 -  group_names.push_back("-hV");
++  group_names.push_back("-SYS");
 +  group_names.push_back("-SiLU");
    group_names.push_back("-SiNNERS");
 -  group_names.push_back("-NBS");
++  group_names.push_back("-SiTV");
    group_names.push_back("-THOR");
 -  group_names.push_back("-WPi");
 -  group_names.push_back("-Chakra");
@@ -225,6 +239,7 @@
 -  group_names.push_back("-CDDHD");
 +  group_names.push_back("-ViTE");
 +  group_names.push_back("-WPi");
++  group_names.push_back("-WiKi");
    group_names.push_back("-XOR");
 -  group_names.push_back("-LOL");
 -  group_names.push_back("-DivXfacTory");
@@ -238,7 +253,7 @@
  
    int pos;
  
-@@ -632,7 +632,7 @@
+@@ -637,7 +674,7 @@
    std::pair<int, int> element_size = string_format::calculate_string_size("abcltuwHPMjJg", normal_font);
    int information_header_height = element_size.second;
  
