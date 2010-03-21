@@ -3,7 +3,7 @@
 %bcond_without	lirc		# without lirc support
 #
 %define	sname	mms
-%define	snap	2241
+%define	snap	2252
 Summary:	My Media System
 Name:		mymediasystem
 Version:	1.1.0
@@ -12,7 +12,7 @@ License:	GPL v2+
 Group:		Applications/Multimedia
 #Source0:	http://mms.sunsite.dk/%{sname}-%{version}.tgz
 Source0:	http://mms.mymediasystem.net/mms110/nightly-snapshot/%{sname}-%{version}-%{snap}.tgz
-# Source0-md5:	80ecf7a8be9e80fc81e9da8a80df7034
+# Source0-md5:	f985b9d481b10684d708d2c02e0d4643
 Patch0:		%{name}-build.patch
 Patch1:		%{name}-epg.patch
 Patch2:		%{name}-imdb.patch
