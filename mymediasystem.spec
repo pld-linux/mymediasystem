@@ -62,7 +62,8 @@ your specially tailored multimedia PC and HD display.
 
 %build
 ./configure \
-	--prefix=%{_prefix} \
+	--prefix="%{_prefix}" \
+	--libdir="%{_libdir}" \
 	--enable-clock \
 	--enable-evdev \
 	%{?with_lirc:--enable-lirc} \
@@ -75,16 +76,19 @@ your specially tailored multimedia PC and HD display.
 	--disable-inotify \
 	--disable-optimization
 
+# lib64 fix
+echo "PYTHON_INSTALL = %{py_sitedir}" >> config.mak
+
 %{__make} \
 	CC="%{__cc} %{rpmcflags}" \
-	CXX="%{__cxx} %{rpmcxxflags} -L/lib"
+	CXX="%{__cxx} %{rpmcxxflags}"
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
 %{__make} install \
 	CC="%{__cc} %{rpmcflags}" \
-	CXX="%{__cxx} %{rpmcxxflags} -L/lib" \
+	CXX="%{__cxx} %{rpmcxxflags}" \
 	DESTDIR=$RPM_BUILD_ROOT
 
 cd $RPM_BUILD_ROOT%{_datadir}/mms/fonts
