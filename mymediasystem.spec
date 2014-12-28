@@ -26,7 +26,7 @@ BuildRequires:	binutils >= 2.19.51.0.4
 BuildRequires:	boost-devel
 BuildRequires:	commoncpp2-devel
 BuildRequires:	ffmpeg-devel
-BuildRequires:	gettext-devel
+BuildRequires:	gettext-tools
 BuildRequires:	imlib2-devel
 BuildRequires:	libtool
 %{?with_lirc:BuildRequires:	lirc-devel}
